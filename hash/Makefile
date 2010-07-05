@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.$(GOARCH)
 
-TARG=gohashset.googlecode.com/hg/hash
+TARG=gohash.googlecode.com/hg/hash
 GOFILES=\
 		hash.go
 
