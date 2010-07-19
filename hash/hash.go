@@ -86,6 +86,19 @@ func NewSet(capacity int) (hs *Set) {
 	return
 }
 
+func (hs *Set) Keys() (out chan Hasher) {
+	out = make(chan Hasher)
+	go func(out chan Hasher) {
+		for _, bin := range hs.bins {
+			for bin != nil {
+				out <- bin.item
+				bin = bin.next
+			}
+		}
+	}(out)
+	return
+}
+
 func (hs *Set) Insert(h Hasher) {
 	index := h.Hashcode() % uint64(len(hs.bins))
 	var added bool
@@ -115,8 +128,39 @@ func (hs *Set) Size() int {
 
 type Map Set
 
+type KeyValue struct {
+	Key Hasher
+	Value interface{}
+}
+
 func NewMap(capacity int) (hs *Map) {
 	hs = (*Map)(NewSet(capacity))
+	return
+}
+
+func (hs *Map) Values() (out chan interface{}) {
+	out = make(chan interface{})
+	go func(out chan interface{}) {
+		for _, bin := range hs.bins {
+			for bin != nil {
+				out <- bin.value
+				bin = bin.next
+			}
+		}
+	}(out)
+	return
+}
+
+func (hs *Map) KeyValues() (out chan KeyValue) {
+	out = make(chan KeyValue)
+	go func(out chan KeyValue) {
+		for _, bin := range hs.bins {
+			for bin != nil {
+				out <- KeyValue{bin.item, bin.value}
+				bin = bin.next
+			}
+		}
+	}(out)
 	return
 }
 
