@@ -24,7 +24,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-package hash
+package hashset
 
 import "testing"
 
@@ -37,7 +37,7 @@ func (sh StringHasher) Hashcode() (hc uint64) {
 	return
 }
 
-func (sh StringHasher) Equals(other Hasher) bool {
+func (sh StringHasher) Equals(other interface{}) bool {
 	if s, ok := other.(StringHasher); ok {
 		return s == sh
 	}
@@ -45,7 +45,7 @@ func (sh StringHasher) Equals(other Hasher) bool {
 }
 
 func TestSet(t *testing.T) {
-	hs := NewSet()
+	hs := New()
 	hs.Insert(StringHasher("hello, world!"))
 	hs.Insert(StringHasher("hello, there!"))
 	hs.Insert(StringHasher("this is a sentence."))
@@ -73,32 +73,6 @@ func TestSet(t *testing.T) {
 		t.Fail()
 	}
 	if hs.Size() != 2 {
-		t.Fail()
-	}
-}
-
-func TestMap(t *testing.T) {
-	hm := NewMap()
-	hm.Put(StringHasher("john"), "A")
-	hm.Put(StringHasher("stef"), "A+")
-	
-	if grade, ok := hm.Get(StringHasher("john")); ok {
-		if grade.(string) != "A" {
-			t.Fail()
-		}
-	} else {
-		t.Fail()
-	}
-	
-	if grade, ok := hm.Get(StringHasher("stef")); ok {
-		if grade.(string) != "A+" {
-			t.Fail()
-		}
-	} else {
-		t.Fail()
-	}
-	
-	if _, ok := hm.Get(StringHasher("no one")); ok {
 		t.Fail()
 	}
 }
