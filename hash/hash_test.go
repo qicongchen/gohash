@@ -45,7 +45,7 @@ func (sh StringHasher) Equals(other Hasher) bool {
 }
 
 func TestSet(t *testing.T) {
-	hs := NewSet(20)
+	hs := NewSet()
 	hs.Insert(StringHasher("hello, world!"))
 	hs.Insert(StringHasher("hello, there!"))
 	hs.Insert(StringHasher("this is a sentence."))
@@ -78,7 +78,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	hm := NewMap(20)
+	hm := NewMap()
 	hm.Put(StringHasher("john"), "A")
 	hm.Put(StringHasher("stef"), "A+")
 	

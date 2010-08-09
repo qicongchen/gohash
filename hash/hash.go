@@ -75,13 +75,13 @@ func (hll *hasherLL) get(h Hasher) (res *hasherLL) {
 }
 
 type Set struct {
-	bins []*hasherLL
+	bins map[uint64]*hasherLL
 	count int
 }
 
-func NewSet(capacity int) (hs *Set) {
+func NewSet() (hs *Set) {
 	hs = new(Set)
-	hs.bins = make([]*hasherLL, capacity)
+	hs.bins = make(map[uint64]*hasherLL)
 	hs.count = 0
 	return
 }
@@ -100,7 +100,7 @@ func (hs *Set) Keys() (out chan Hasher) {
 }
 
 func (hs *Set) Insert(h Hasher) {
-	index := h.Hashcode() % uint64(len(hs.bins))
+	index := h.Hashcode()
 	var added bool
 	hs.bins[index], added = hs.bins[index].add(h, nil)
 	if added {
@@ -109,7 +109,7 @@ func (hs *Set) Insert(h Hasher) {
 }
 
 func (hs *Set) Remove(h Hasher) {
-	index := h.Hashcode() % uint64(len(hs.bins))
+	index := h.Hashcode()
 	var removed bool
 	hs.bins[index], removed = hs.bins[index].remove(h)
 	if removed {
@@ -118,7 +118,7 @@ func (hs *Set) Remove(h Hasher) {
 }
 
 func (hs *Set) Contains(h Hasher) bool {
-	index := h.Hashcode() % uint64(len(hs.bins))
+	index := h.Hashcode()
 	return hs.bins[index].get(h) != nil
 }
 
@@ -133,8 +133,8 @@ type KeyValue struct {
 	Value interface{}
 }
 
-func NewMap(capacity int) (hs *Map) {
-	hs = (*Map)(NewSet(capacity))
+func NewMap() (hs *Map) {
+	hs = (*Map)(NewSet())
 	return
 }
 
@@ -165,7 +165,7 @@ func (hs *Map) KeyValues() (out chan KeyValue) {
 }
 
 func (hs *Map) Put(h Hasher, v interface{}) {
-	index := h.Hashcode() % uint64(len(hs.bins))
+	index := h.Hashcode()
 	var added bool
 	hs.bins[index], added = hs.bins[index].add(h, v)
 	if added {
@@ -174,7 +174,7 @@ func (hs *Map) Put(h Hasher, v interface{}) {
 }
 
 func (hs *Map) Get(h Hasher) (value interface{}, ok bool) {
-	index := h.Hashcode() % uint64(len(hs.bins))
+	index := h.Hashcode()
 	if hll := hs.bins[index].get(h); hll != nil {
 		value = hll.value
 		ok = true
