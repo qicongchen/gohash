@@ -43,7 +43,8 @@ func (kv KeyValue) Hashcode() uint64 {
 }
 
 func (kv KeyValue) Equals(other interface{}) bool {
-	return kv.Key.Equals(other)
+	okv := other.(KeyValue)
+	return kv.Key.Equals(okv.Key)
 }
 
 func New() (hs *Map) {
@@ -87,7 +88,7 @@ func (hs *Map) Put(h Hasher, v interface{}) {
 }
 
 func (hs *Map) Get(h Hasher) (value interface{}, ok bool) {
-	kvi, ok := (*hashset.Set)(hs).Get(h)
+	kvi, ok := (*hashset.Set)(hs).Get(KeyValue{h, nil})
 	if ok {
 		value = (kvi.(KeyValue)).Value
 	}
