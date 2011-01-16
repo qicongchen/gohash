@@ -86,8 +86,11 @@ func (this *Set) Get(hl HasherLess) (item HasherLess, ok bool) {
 	if bin == nil {
 		return
 	}
-	item = bin.Get(hl).(HasherLess)
-	ok = item != nil
+	itemi := bin.Get(hl)
+	ok = itemi != nil
+	if ok {
+		item = itemi.(HasherLess)
+	}
 	return
 }
 

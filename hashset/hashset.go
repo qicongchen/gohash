@@ -32,6 +32,7 @@ type Hasher interface {
 	Equals(other interface{}) bool
 }
 
+
 type hasherLL struct {
 	item Hasher
 	next *hasherLL
