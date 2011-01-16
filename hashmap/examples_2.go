@@ -16,7 +16,8 @@ import (
 
 // Aggregate structure which will be used as key
 // It does not have to have a particular name, it simply has to
-// be given the to methods :
+// be given the two methods :
+
 // - Hashcode()
 // - Equals()
 
