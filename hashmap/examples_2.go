@@ -15,7 +15,7 @@ import (
 
 
 // Aggregate structure which will be used as key
-// It does not have to have a particular name, it simply has to
+// It does not need to have a particular name, it simply has to
 // be given the two methods :
 
 // - Hashcode()
