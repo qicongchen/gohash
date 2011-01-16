@@ -52,12 +52,17 @@ func New() (hs *Map) {
 	return
 }
 
+func (hs *Map) Size() int {
+    return  hs.Count
+}
+
 func (hs *Map) Keys() (out chan interface{}) {
 	out = make(chan interface{})
 	go func(out chan interface{}) {
 		for kv := range hs.KeyValues() {
 			out <- kv.Key
 		}
+        close(out)
 	}(out)
 	return
 }
@@ -68,6 +73,7 @@ func (hs *Map) Values() (out chan interface{}) {
 		for kv := range hs.KeyValues() {
 			out <- kv.Value
 		}
+        close(out)
 	}(out)
 	return
 }
@@ -78,6 +84,7 @@ func (hs *Map) KeyValues() (out chan KeyValue) {
 		for kvi := range (*hashset.Set)(hs).Keys() {
 			out <- kvi.(KeyValue)
 		}
+        close(out)
 	}(out)
 	return
 }

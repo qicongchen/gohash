@@ -76,13 +76,13 @@ func (hll *hasherLL) get(h Hasher) (res *hasherLL) {
 
 type Set struct {
 	bins map[uint64]*hasherLL
-	count int
+	Count int
 }
 
 func New() (hs *Set) {
 	hs = new(Set)
 	hs.bins = make(map[uint64]*hasherLL)
-	hs.count = 0
+	hs.Count = 0
 	return
 }
 
@@ -95,6 +95,7 @@ func (hs *Set) Keys() (out chan Hasher) {
 				bin = bin.next
 			}
 		}
+        close(out)
 	}(out)
 	return
 }
@@ -104,7 +105,7 @@ func (hs *Set) Insert(h Hasher) {
 	var added bool
 	hs.bins[index], added = hs.bins[index].add(h)
 	if added {
-		hs.count++
+		hs.Count++
 	}
 }
 
@@ -113,7 +114,7 @@ func (hs *Set) Remove(h Hasher) {
 	var removed bool
 	hs.bins[index], removed = hs.bins[index].remove(h)
 	if removed {
-		hs.count--
+		hs.Count--
 	}
 }
 
@@ -133,5 +134,5 @@ func (hs *Set) Contains(h Hasher) bool {
 }
 
 func (hs *Set) Size() int {
-	return hs.count
+	return hs.Count
 }
