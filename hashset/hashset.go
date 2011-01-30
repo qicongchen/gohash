@@ -25,6 +25,7 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED O
 POSSIBILITY OF SUCH DAMAGE.
 */
 
+//target:gohash.googlecode.com/hg/hashset
 package hashset
 
 type Hasher interface {
