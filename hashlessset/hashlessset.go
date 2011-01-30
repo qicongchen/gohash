@@ -51,7 +51,7 @@ func (this *Set) Keys() (out chan HasherLess) {
 	out = make(chan HasherLess)
 	go func(out chan HasherLess) {
 		for _, bin := range this.bins {
-			for item := range bin.Iter() {
+			for item := range bin.IterAscend() {
 				out <- item.(HasherLess)
 			}
 		}
@@ -66,7 +66,7 @@ func (this *Set) Insert(hl HasherLess) {
 		//bin.Init()
 		this.bins[hl.Hashcode()] = bin
 	}
-	if bin.InsertOrReplace(hl) == nil {
+	if bin.ReplaceOrInsert(hl) == nil {
 		this.count++
 	}
 }
