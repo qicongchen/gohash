@@ -36,6 +36,9 @@ type HasherLess interface {
 	Hashcode() uint64
 	LessThan(other interface{}) bool
 }
+func LessFunc(a, b interface{}) bool {
+	return a.(HasherLess).LessThan(b)
+}
 
 type Set struct {
 	bins map[uint64]*llrb.Tree
@@ -63,7 +66,7 @@ func (this *Set) Keys() (out chan HasherLess) {
 func (this *Set) Insert(hl HasherLess) {
 	bin := this.bins[hl.Hashcode()]
 	if bin == nil {
-		bin = new(llrb.Tree)
+		bin = llrb.New(LessFunc)
 		//bin.Init()
 		this.bins[hl.Hashcode()] = bin
 	}
@@ -87,6 +90,7 @@ func (this *Set) Get(hl HasherLess) (item HasherLess, ok bool) {
 	if bin == nil {
 		return
 	}
+	println(bin==nil, hl==nil)
 	itemi := bin.Get(hl)
 	ok = itemi != nil
 	if ok {
