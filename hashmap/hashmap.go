@@ -26,6 +26,8 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 //target:gohash.googlecode.com/hg/hashmap
+
+//Hashmap backed by a linked list.
 package hashmap
 
 import (

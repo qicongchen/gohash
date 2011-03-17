@@ -26,6 +26,8 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 //target:gohash.googlecode.com/hg/hashlessset
+
+//Hashset backed by a left-leaning red-black tree.
 package hashlessset
 
 import (

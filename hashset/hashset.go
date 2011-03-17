@@ -26,6 +26,8 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 //target:gohash.googlecode.com/hg/hashset
+
+//Hashset backed by a linked list.
 package hashset
 
 type Hasher interface {

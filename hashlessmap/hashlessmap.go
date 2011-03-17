@@ -26,6 +26,7 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 //target:gohash.googlecode.com/hg/hashlessmap
+//Hashmap backed by a left-leaning red-black tree.
 package hashlessmap
 
 import (

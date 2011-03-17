@@ -1,4 +1,6 @@
 //target:gohash.googlecode.com/hg/hashutil
+
+//Some hashing functions.
 package hashutil
 
 import "unsafe"
