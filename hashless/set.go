@@ -102,7 +102,6 @@ func (this *Set) Insert(item interface{}) {
 	bin := this.bins[this.hasher(item)]
 	if bin == nil {
 		bin = llrb.New(llrb.LessFunc(this.lesser))
-		//bin.Init()
 		this.bins[this.hasher(item)] = bin
 	}
 	if bin.ReplaceOrInsert(item) == nil {
