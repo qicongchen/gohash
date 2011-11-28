@@ -28,84 +28,114 @@ POSSIBILITY OF SUCH DAMAGE.
 //target:gohash.googlecode.com/hg/hashlessset
 
 //Hashset backed by a left-leaning red-black tree.
-package hashlessset
+package hashless
 
 import (
 	"github.com/petar/GoLLRB/llrb"
 )
 
-type HasherLess interface {
+type Hasher interface {
 	Hashcode() uint64
+}
+type Lesser interface {
 	LessThan(other interface{}) bool
 }
-func LessFunc(a, b interface{}) bool {
-	return a.(HasherLess).LessThan(b)
+
+type HashFunc func(a interface{}) uint64
+type LessFunc func(a, b interface{}) bool
+
+func MethodLessThan(a, b interface{}) bool {
+	return a.(Lesser).LessThan(b)
+}
+
+func MethodHashcode(a interface{}) uint64 {
+	return a.(Hasher).Hashcode()
 }
 
 type Set struct {
 	bins map[uint64]*llrb.Tree
+	lesser LessFunc
+	hasher HashFunc
 	count int
 }
 
-func New() (this *Set) {
-	this = new(Set)
-	this.bins = make(map[uint64]*llrb.Tree)
+func NewSet() (this *Set) {
+	this = &Set {
+		lesser: MethodLessThan,
+		hasher: MethodHashcode,
+		bins: make(map[uint64]*llrb.Tree),
+	}
 	return
 }
 
-func (this *Set) Keys() (out chan HasherLess) {
-	out = make(chan HasherLess)
-	go func(out chan HasherLess) {
+func NewSetFuncs(hasher HashFunc, lesser LessFunc) (this *Set) {
+	this = &Set {
+		lesser: lesser,
+		hasher: hasher,
+		bins: make(map[uint64]*llrb.Tree),
+	}
+	return
+}
+
+func (this *Set) Hasher(a interface{}) uint64 {
+	return this.hasher(a)
+}
+
+func (this *Set) Lesser(a, b interface{}) bool {
+	return this.lesser(a, b)
+}
+
+func (this *Set) Keys() (out <-chan interface{}) {
+	ch := make(chan interface{})
+	out = ch
+	go func(in chan<- interface{}) {
 		for _, bin := range this.bins {
 			for item := range bin.IterAscend() {
-				out <- item.(HasherLess)
+				in <- item
 			}
 		}
-	}(out)
+	}(ch)
 	return
 }
 
-func (this *Set) Insert(hl HasherLess) {
-	bin := this.bins[hl.Hashcode()]
+func (this *Set) Insert(item interface{}) {
+	bin := this.bins[this.hasher(item)]
 	if bin == nil {
-		bin = llrb.New(LessFunc)
+		bin = llrb.New(llrb.LessFunc(this.lesser))
 		//bin.Init()
-		this.bins[hl.Hashcode()] = bin
+		this.bins[this.hasher(item)] = bin
 	}
-	if bin.ReplaceOrInsert(hl) == nil {
+	if bin.ReplaceOrInsert(item) == nil {
 		this.count++
 	}
 }
 
-func (this *Set) Remove(hl HasherLess) {
-	bin := this.bins[hl.Hashcode()]
+func (this *Set) Remove(key interface{}) {
+	bin := this.bins[this.hasher(key)]
 	if bin == nil {
 		return
 	}
-	if bin.Delete(hl) != nil {
+	if bin.Delete(key) != nil {
 		this.count--
 	}
 }
 
-func (this *Set) Get(hl HasherLess) (item HasherLess, ok bool) {
-	bin := this.bins[hl.Hashcode()]
+func (this *Set) Get(key interface{}) (item interface{}, ok bool) {
+	bin := this.bins[this.hasher(key)]
 	if bin == nil {
 		return
 	}
-	itemi := bin.Get(hl)
-	ok = itemi != nil
-	if ok {
-		item = itemi.(HasherLess)
-	}
+	item = bin.Get(key)
+	ok = item != nil
 	return
 }
 
-func (this *Set) Contains(hl HasherLess) bool {
-	bin := this.bins[hl.Hashcode()]
+func (this *Set) Contains(key interface{}) bool {
+	bin := this.bins[this.hasher(key)]
 	if bin == nil {
 		return false
 	}
-	return bin.Has(hl)
+	return bin.Has(key)
 }
 
 func (this *Set) Size() int {

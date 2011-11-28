@@ -8,18 +8,28 @@ GOFILES=\
 	examples_1.go\
 
 # gb: this is the local install
-GBROOT=../..
+GBROOT=../../../..
 
 # gb: compile/link against local install
-GC+= -I $(GBROOT)/_obj
-LD+= -L $(GBROOT)/_obj
+GCIMPORTS+= -I $(GBROOT)/_obj
+LDIMPORTS+= -L $(GBROOT)/_obj
+# gb: compile/link against GOPATH entries
+GOPATHSEP=:
+ifeq ($(GOHOSTOS),windows)
+GOPATHSEP=;
+endif
+GCIMPORTS=-I $(subst $(GOPATHSEP),/pkg/$(GOOS)_$(GOARCH) -I , $(GOPATH))/pkg/$(GOOS)_$(GOARCH)
+LDIMPORTS=-L $(subst $(GOPATHSEP),/pkg/$(GOOS)_$(GOARCH) -L , $(GOPATH))/pkg/$(GOOS)_$(GOARCH)
+
+# gb: default target is in GBROOT this way
+command:
+
+include $(GOROOT)/src/Make.cmd
 
 # gb: copy to local install
 $(GBROOT)/bin/$(TARG): $(TARG)
 	mkdir -p $(dir $@); cp -f $< $@
 command: $(GBROOT)/bin/$(TARG)
-
-include $(GOROOT)/src/Make.cmd
 
 # gb: local dependencies
 $(TARG): $(GBROOT)/_obj/gohash.googlecode.com/hg/hashmap.a

@@ -28,73 +28,89 @@ POSSIBILITY OF SUCH DAMAGE.
 //target:gohash.googlecode.com/hg/hashlessmap
 
 //Hashmap backed by a left-leaning red-black tree.
-package hashlessmap
-
-import (
-	"gohash.googlecode.com/hg/hashlessset"
-)
-
-type HasherLess hashlessset.HasherLess
-type Map hashlessset.Set
+package hashless
 
 type KeyValue struct {
-	Key HasherLess
+	Key interface{}
 	Value interface{}
 }
 
-func (kv KeyValue) Hashcode() uint64 {
-	return kv.Key.Hashcode()
+func (kv KeyValue) Hashcode(hasher HashFunc) uint64 {
+	return hasher(kv.Key)
 }
 
-func (kv KeyValue) LessThan(other interface{}) bool {
-	okv := other.(KeyValue)
-	return kv.Key.LessThan(okv.Key)
+func (kv KeyValue) LessThan(other interface{}, lesser LessFunc) bool {
+	return lesser(kv.Key, other)
 }
 
-func New() (hs *Map) {
-	hs = (*Map)(hashlessset.New())
+type Map Set
+
+func NewMap() *Map {
+	return NewMapFuncs(MethodHashcode, MethodLessThan)
+}
+
+func NewMapFuncs(hasher HashFunc, lesser LessFunc) (me *Map) {
+
+	kvhasher := func(kv interface{}) uint64 {
+		return hasher(kv.(KeyValue).Key)
+	}
+	kvlesser := func(kv1, kv2 interface{}) bool {
+		return lesser(kv1.(KeyValue).Key, kv2.(KeyValue).Key)
+	}
+
+	me = (*Map)(NewSetFuncs(kvhasher, kvlesser))
 	return
 }
 
-func (hs *Map) Keys() (out chan interface{}) {
-	out = make(chan interface{})
-	go func(out chan interface{}) {
-		for kv := range hs.KeyValues() {
-			out <- kv.Key
+func (me *Map) Keys() (out <-chan interface{}) {
+	ch := make(chan interface{})
+	out = ch
+	go func(in chan<- interface{}) {
+		for kv := range me.KeyValues() {
+			in <- kv.Key
 		}
-	}(out)
+		close(in)
+	}(ch)
 	return
 }
 
-func (hs *Map) Values() (out chan interface{}) {
-	out = make(chan interface{})
-	go func(out chan interface{}) {
-		for kv := range hs.KeyValues() {
-			out <- kv.Value
+func (me *Map) Values() (out <-chan interface{}) {
+	ch := make(chan interface{})
+	out = ch
+	go func(in chan<- interface{}) {
+		for kv := range me.KeyValues() {
+			in <- kv.Value
 		}
-	}(out)
+		close(in)
+	}(ch)
 	return
 }
 
-func (hs *Map) KeyValues() (out chan KeyValue) {
-	out = make(chan KeyValue)
-	go func(out chan KeyValue) {
-		for kvi := range (*hashlessset.Set)(hs).Keys() {
-			out <- kvi.(KeyValue)
+func (me *Map) KeyValues() (out <-chan KeyValue) {
+	ch := make(chan KeyValue)
+	out = ch
+	go func(in chan<- KeyValue) {
+		for kvi := range (*Set)(me).Keys() {
+			in <- kvi.(KeyValue)
 		}
-	}(out)
+		close(in)
+	}(ch)
 	return
 }
 
-func (hs *Map) Put(h HasherLess, v interface{}) {
-	kv := KeyValue{h, v}
-	(*hashlessset.Set)(hs).Insert(kv)
+func (me *Map) Put(k interface{}, v interface{}) {
+	kv := KeyValue{k, v}
+	(*Set)(me).Insert(kv)
 }
 
-func (hs *Map) Get(h HasherLess) (value interface{}, ok bool) {
-	kvi, ok := (*hashlessset.Set)(hs).Get(KeyValue{h, nil})
+func (me *Map) Get(k interface{}) (value interface{}, ok bool) {
+	kvi, ok := (*Set)(me).Get(KeyValue{k, nil})
 	if ok {
 		value = (kvi.(KeyValue)).Value
 	}
 	return
+}
+
+func (me *Map) Size() int {
+	return (*Set)(me).Size()
 }
