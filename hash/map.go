@@ -36,29 +36,29 @@ type KeyValue struct {
 
 type Map Set
 
-func NewMap() (hs *Map) {
+func NewMap() (me *Map) {
 	return NewMapFuncs(MethodHash, MethodEquals)
 }
-func NewMapFuncs(hasher HashFunc, equalser EqualsFunc) (hs *Map) {
+func NewMapFuncs(hasher HashFunc, equalser EqualsFunc) (me *Map) {
 	kvhasher := func(kv interface{}) uint64 {
 		return hasher(kv.(KeyValue).Key)
 	}
 	kvequalser := func(a, b interface{}) bool {
 		return equalser(a.(KeyValue).Key, b.(KeyValue).Key)
 	}
-	hs = (*Map)(NewSetFuncs(kvhasher, kvequalser))
+	me = (*Map)(NewSetFuncs(kvhasher, kvequalser))
 	return
 }
 
-func (hs *Map) Size() int {
-    return  hs.Size()
+func (me *Map) Size() int {
+    return  me.Size()
 }
 
-func (hs *Map) Keys() (out <-chan interface{}) {
+func (me *Map) Keys() (out <-chan interface{}) {
 	ch := make(chan interface{})
 	out = ch
 	go func(in chan<- interface{}) {
-		for kv := range hs.KeyValues() {
+		for kv := range me.KeyValues() {
 			in <- kv.Key
 		}
         close(in)
@@ -66,11 +66,11 @@ func (hs *Map) Keys() (out <-chan interface{}) {
 	return
 }
 
-func (hs *Map) Values() (out <-chan interface{}) {
+func (me *Map) Values() (out <-chan interface{}) {
 	ch := make(chan interface{})
 	out = ch
 	go func(in chan<- interface{}) {
-		for kv := range hs.KeyValues() {
+		for kv := range me.KeyValues() {
 			in <- kv.Value
 		}
         close(in)
@@ -78,11 +78,11 @@ func (hs *Map) Values() (out <-chan interface{}) {
 	return
 }
 
-func (hs *Map) KeyValues() (out <-chan KeyValue) {
+func (me *Map) KeyValues() (out <-chan KeyValue) {
 	ch := make(chan KeyValue)
 	out = ch
 	go func(in chan<- KeyValue) {
-		for kvi := range (*Set)(hs).Keys() {
+		for kvi := range (*Set)(me).Keys() {
 			in <- kvi.(KeyValue)
 		}
         close(in)
@@ -90,13 +90,13 @@ func (hs *Map) KeyValues() (out <-chan KeyValue) {
 	return
 }
 
-func (hs *Map) Put(k interface{}, v interface{}) {
+func (me *Map) Put(k interface{}, v interface{}) {
 	kv := KeyValue{k, v}
-	(*Set)(hs).Insert(kv)
+	(*Set)(me).Insert(kv)
 }
 
-func (hs *Map) Get(k interface{}) (value interface{}, ok bool) {
-	kvi, ok := (*Set)(hs).Get(KeyValue{k, nil})
+func (me *Map) Get(k interface{}) (value interface{}, ok bool) {
+	kvi, ok := (*Set)(me).Get(KeyValue{k, nil})
 	if ok {
 		value = (kvi.(KeyValue)).Value
 	}

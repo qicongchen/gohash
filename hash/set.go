@@ -62,19 +62,19 @@ func NewSet() *Set {
 	return NewSetFuncs(MethodHash, MethodEquals)
 }
 
-func NewSetFuncs(hasher HashFunc, equalser EqualsFunc) (hs *Set) {
-	hs = new(Set)
-	hs.bins = make(map[uint64]*list.List)
-	hs.hasher = hasher
-	hs.equalser = equalser
-	hs.count = 0
+func NewSetFuncs(hasher HashFunc, equalser EqualsFunc) (me *Set) {
+	me = new(Set)
+	me.bins = make(map[uint64]*list.List)
+	me.hasher = hasher
+	me.equalser = equalser
+	me.count = 0
 	return
 }
 
-func (hs *Set) Keys() (out chan interface{}) {
+func (me *Set) Keys() (out chan interface{}) {
 	out = make(chan interface{})
 	go func(out chan interface{}) {
-		for _, bin := range hs.bins {
+		for _, bin := range me.bins {
 			for c := bin.Front(); c != nil; c = c.Next() {
 				out <- c.Value
 			}
@@ -84,41 +84,41 @@ func (hs *Set) Keys() (out chan interface{}) {
 	return
 }
 
-func (hs *Set) Insert(key interface{}) {
-	index := hs.hasher(key)
-	bin, exists := hs.bins[index]
+func (me *Set) Insert(key interface{}) {
+	index := me.hasher(key)
+	bin, exists := me.bins[index]
 	if !exists {
 		bin = list.New()
-		hs.bins[index] = bin
+		me.bins[index] = bin
 	}
 	for c := bin.Front(); c != nil; c = c.Next() {
-		if hs.equalser(c.Value, key) {
+		if me.equalser(c.Value, key) {
 			c.Value = key
 			return
 		}
 	}
 	bin.PushFront(key)
-	hs.count++
+	me.count++
 }
 
-func (hs *Set) Remove(key interface{}) {
-	index := hs.hasher(key)
-	if bin, exists := hs.bins[index]; exists {	
+func (me *Set) Remove(key interface{}) {
+	index := me.hasher(key)
+	if bin, exists := me.bins[index]; exists {	
 		for c := bin.Front(); c != nil; c = c.Next() {
-			if hs.equalser(c.Value, key) {
+			if me.equalser(c.Value, key) {
 				bin.Remove(c)
-				hs.count--
+				me.count--
 				return
 			}
 		}
 	}
 }
 
-func (hs *Set) Get(key interface{}) (item interface{}, ok bool) {
-	index := hs.hasher(key)
-	if bin, exists := hs.bins[index]; exists {	
+func (me *Set) Get(key interface{}) (item interface{}, ok bool) {
+	index := me.hasher(key)
+	if bin, exists := me.bins[index]; exists {	
 		for c := bin.Front(); c != nil; c = c.Next() {
-			if hs.equalser(c.Value, key) {
+			if me.equalser(c.Value, key) {
 				item, ok = c.Value, true
 				return
 			}
@@ -127,11 +127,11 @@ func (hs *Set) Get(key interface{}) (item interface{}, ok bool) {
 	return
 }
 
-func (hs *Set) Contains(key interface{}) (exists bool) {
-	_, exists = hs.Get(key)
+func (me *Set) Contains(key interface{}) (exists bool) {
+	_, exists = me.Get(key)
 	return
 }
 
-func (hs *Set) Size() int {
-	return hs.count
+func (me *Set) Size() int {
+	return me.count
 }
