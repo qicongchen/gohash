@@ -31,16 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 package hashless
 
 type KeyValue struct {
-	Key interface{}
-	Value interface{}
-}
-
-func (kv KeyValue) Hashcode(hasher HashFunc) uint64 {
-	return hasher(kv.Key)
-}
-
-func (kv KeyValue) LessThan(other interface{}, lesser LessFunc) bool {
-	return lesser(kv.Key, other)
+	Key, Value interface{}
 }
 
 type Map Set

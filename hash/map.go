@@ -28,78 +28,75 @@ POSSIBILITY OF SUCH DAMAGE.
 //target:gohash.googlecode.com/hg/hashmap
 
 //Hashmap backed by a linked list.
-package hashmap
-
-import (
-	"gohash.googlecode.com/hg/hashset"
-)
-
-type Hasher hashset.Hasher
-type Map hashset.Set
+package hash
 
 type KeyValue struct {
-	Key Hasher
-	Value interface{}
+	Key, Value interface{}
 }
 
-func (kv KeyValue) Hashcode() uint64 {
-	return kv.Key.Hashcode()
-}
+type Map Set
 
-func (kv KeyValue) Equals(other interface{}) bool {
-	okv := other.(KeyValue)
-	return kv.Key.Equals(okv.Key)
+func NewMap() (hs *Map) {
+	return NewMapFuncs(MethodHash, MethodEquals)
 }
-
-func New() (hs *Map) {
-	hs = (*Map)(hashset.New())
+func NewMapFuncs(hasher HashFunc, equalser EqualsFunc) (hs *Map) {
+	kvhasher := func(kv interface{}) uint64 {
+		return hasher(kv.(KeyValue).Key)
+	}
+	kvequalser := func(a, b interface{}) bool {
+		return equalser(a.(KeyValue).Key, b.(KeyValue).Key)
+	}
+	hs = (*Map)(NewSetFuncs(kvhasher, kvequalser))
 	return
 }
 
 func (hs *Map) Size() int {
-    return  hs.Count
+    return  hs.Size()
 }
 
-func (hs *Map) Keys() (out chan interface{}) {
-	out = make(chan interface{})
-	go func(out chan interface{}) {
+func (hs *Map) Keys() (out <-chan interface{}) {
+	ch := make(chan interface{})
+	out = ch
+	go func(in chan<- interface{}) {
 		for kv := range hs.KeyValues() {
-			out <- kv.Key
+			in <- kv.Key
 		}
-        close(out)
-	}(out)
+        close(in)
+	}(ch)
 	return
 }
 
-func (hs *Map) Values() (out chan interface{}) {
-	out = make(chan interface{})
-	go func(out chan interface{}) {
+func (hs *Map) Values() (out <-chan interface{}) {
+	ch := make(chan interface{})
+	out = ch
+	go func(in chan<- interface{}) {
 		for kv := range hs.KeyValues() {
-			out <- kv.Value
+			in <- kv.Value
 		}
-        close(out)
-	}(out)
+        close(in)
+	}(ch)
 	return
 }
 
-func (hs *Map) KeyValues() (out chan KeyValue) {
-	out = make(chan KeyValue)
-	go func(out chan KeyValue) {
-		for kvi := range (*hashset.Set)(hs).Keys() {
-			out <- kvi.(KeyValue)
+func (hs *Map) KeyValues() (out <-chan KeyValue) {
+	ch := make(chan KeyValue)
+	out = ch
+	go func(in chan<- KeyValue) {
+		for kvi := range (*Set)(hs).Keys() {
+			in <- kvi.(KeyValue)
 		}
-        close(out)
-	}(out)
+        close(in)
+	}(ch)
 	return
 }
 
-func (hs *Map) Put(h Hasher, v interface{}) {
-	kv := KeyValue{h, v}
-	(*hashset.Set)(hs).Insert(kv)
+func (hs *Map) Put(k interface{}, v interface{}) {
+	kv := KeyValue{k, v}
+	(*Set)(hs).Insert(kv)
 }
 
-func (hs *Map) Get(h Hasher) (value interface{}, ok bool) {
-	kvi, ok := (*hashset.Set)(hs).Get(KeyValue{h, nil})
+func (hs *Map) Get(k interface{}) (value interface{}, ok bool) {
+	kvi, ok := (*Set)(hs).Get(KeyValue{k, nil})
 	if ok {
 		value = (kvi.(KeyValue)).Value
 	}

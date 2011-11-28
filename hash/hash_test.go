@@ -24,7 +24,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-package hashset
+package hash
 
 import "testing"
 
@@ -45,7 +45,7 @@ func (sh StringHasher) Equals(other interface{}) bool {
 }
 
 func TestSet(t *testing.T) {
-	hs := New()
+	hs := NewSet()
 	hs.Insert(StringHasher("hello, world!"))
 	hs.Insert(StringHasher("hello, there!"))
 	hs.Insert(StringHasher("this is a sentence."))

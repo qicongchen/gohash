@@ -24,28 +24,12 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-package hashmap
+package hash
 
 import "testing"
 
-type StringHasher string
-
-func (sh StringHasher) Hashcode() (hc uint64) {
-	for i, c := range sh {
-		hc += uint64(c) * 2 << uint64(i)
-	}
-	return
-}
-
-func (sh StringHasher) Equals(other interface{}) bool {
-	if s, ok := other.(StringHasher); ok {
-		return s == sh
-	}
-	return false
-}
-
 func TestMap(t *testing.T) {
-	hm := New()
+	hm := NewMap()
 	hm.Put(StringHasher("john"), "A")
 	hm.Put(StringHasher("stef"), "A+")
 	
