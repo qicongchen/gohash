@@ -19,6 +19,7 @@ func HashFloat64Slice(fs []float64) (hash uint64) {
 }
 
 type Float64SliceHasher []float64
+
 func (this Float64SliceHasher) Hashcode() (hash uint64) {
 	return HashFloat64Slice(this)
 }

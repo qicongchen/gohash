@@ -28,12 +28,11 @@ package hashless
 
 import "testing"
 
-
 func TestMap(t *testing.T) {
 	hm := NewMap()
 	hm.Put(StringHasher("john"), "A")
 	hm.Put(StringHasher("stef"), "A+")
-	
+
 	if grade, ok := hm.Get(StringHasher("john")); ok {
 		if grade.(string) != "A" {
 			t.Fail()
@@ -41,7 +40,7 @@ func TestMap(t *testing.T) {
 	} else {
 		t.Fail()
 	}
-	
+
 	if grade, ok := hm.Get(StringHasher("stef")); ok {
 		if grade.(string) != "A+" {
 			t.Fail()
@@ -49,7 +48,7 @@ func TestMap(t *testing.T) {
 	} else {
 		t.Fail()
 	}
-	
+
 	if _, ok := hm.Get(StringHasher("no one")); ok {
 		t.Fail()
 	}

@@ -52,10 +52,10 @@ func MethodEquals(a, b interface{}) bool {
 }
 
 type Set struct {
-	bins map[uint64]*list.List
-	hasher HashFunc
+	bins     map[uint64]*list.List
+	hasher   HashFunc
 	equalser EqualsFunc
-	count int
+	count    int
 }
 
 func NewSet() *Set {
@@ -79,7 +79,7 @@ func (me *Set) Keys() (out chan interface{}) {
 				out <- c.Value
 			}
 		}
-        close(out)
+		close(out)
 	}(out)
 	return
 }
@@ -103,7 +103,7 @@ func (me *Set) Insert(key interface{}) {
 
 func (me *Set) Remove(key interface{}) {
 	index := me.hasher(key)
-	if bin, exists := me.bins[index]; exists {	
+	if bin, exists := me.bins[index]; exists {
 		for c := bin.Front(); c != nil; c = c.Next() {
 			if me.equalser(c.Value, key) {
 				bin.Remove(c)
@@ -116,7 +116,7 @@ func (me *Set) Remove(key interface{}) {
 
 func (me *Set) Get(key interface{}) (item interface{}, ok bool) {
 	index := me.hasher(key)
-	if bin, exists := me.bins[index]; exists {	
+	if bin, exists := me.bins[index]; exists {
 		for c := bin.Front(); c != nil; c = c.Next() {
 			if me.equalser(c.Value, key) {
 				item, ok = c.Value, true

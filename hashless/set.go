@@ -53,26 +53,26 @@ func MethodHashcode(a interface{}) uint64 {
 }
 
 type Set struct {
-	bins map[uint64]*llrb.Tree
+	bins   map[uint64]*llrb.Tree
 	lesser LessFunc
 	hasher HashFunc
-	count int
+	count  int
 }
 
 func NewSet() (this *Set) {
-	this = &Set {
+	this = &Set{
 		lesser: MethodLessThan,
 		hasher: MethodHashcode,
-		bins: make(map[uint64]*llrb.Tree),
+		bins:   make(map[uint64]*llrb.Tree),
 	}
 	return
 }
 
 func NewSetFuncs(hasher HashFunc, lesser LessFunc) (this *Set) {
-	this = &Set {
+	this = &Set{
 		lesser: lesser,
 		hasher: hasher,
-		bins: make(map[uint64]*llrb.Tree),
+		bins:   make(map[uint64]*llrb.Tree),
 	}
 	return
 }

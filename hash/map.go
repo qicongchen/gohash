@@ -51,7 +51,7 @@ func NewMapFuncs(hasher HashFunc, equalser EqualsFunc) (me *Map) {
 }
 
 func (me *Map) Size() int {
-    return  me.Size()
+	return me.Size()
 }
 
 func (me *Map) Keys() (out <-chan interface{}) {
@@ -61,7 +61,7 @@ func (me *Map) Keys() (out <-chan interface{}) {
 		for kv := range me.KeyValues() {
 			in <- kv.Key
 		}
-        close(in)
+		close(in)
 	}(ch)
 	return
 }
@@ -73,7 +73,7 @@ func (me *Map) Values() (out <-chan interface{}) {
 		for kv := range me.KeyValues() {
 			in <- kv.Value
 		}
-        close(in)
+		close(in)
 	}(ch)
 	return
 }
@@ -85,7 +85,7 @@ func (me *Map) KeyValues() (out <-chan KeyValue) {
 		for kvi := range (*Set)(me).Keys() {
 			in <- kvi.(KeyValue)
 		}
-        close(in)
+		close(in)
 	}(ch)
 	return
 }
